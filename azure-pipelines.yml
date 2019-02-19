@@ -3,6 +3,8 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+name: $(BuildDefinitionName)-$(Date:yyyyMMdd).$(Rev:.r)
+
 trigger:
 - master
 
@@ -10,10 +12,5 @@ pool:
   vmImage: 'vs2017-win2016'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- powershell: Install-Module Microsoft.Xrm.Data.Powershell -Scope CurrentUser -Force
+  displayName: 'Install Microsoft.Xrm.Data.PowerShell'
