@@ -30,7 +30,14 @@ steps:
   displayName: 'Install CoreTools'
 
 - powershell: |
-    ./tools/CoreTools/SolutionPackager.exe /action: Extract /folder: packedSolution /zipFile: $env:SolutionPath /errorlevel: verbose
+    Start-Process tools/CoreTools/SolutionPackager.exe `
+    -ArgumentList `
+      "/action: Pack", `
+      "/zipfile: packedSolution", `
+      "/folder: $env:SolutionPath", `
+      "/packagetype: Managed" `
+    -Wait `
+    -NoNewWindow
   env:
     SolutionPath: $(Solution.Path)
   displayName: 'Solution Packager: pack solution'
