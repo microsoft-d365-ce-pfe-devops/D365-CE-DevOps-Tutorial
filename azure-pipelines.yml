@@ -44,5 +44,5 @@ steps:
 
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: '$env:BUILD_ARTIFACTSTAGINGDIRECTORY/packedSolution'
+    PathtoPublish: $(Build.ArtifactStagingDirectory)'
     artifactName: drop
