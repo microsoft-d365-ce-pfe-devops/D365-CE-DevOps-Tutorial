@@ -30,6 +30,8 @@ steps:
     Remove-Item "tools\\$coreToolsFolder" -Force -Recurse
   displayName: 'Install CoreTools'
 
+- powershell : ls
+
 - powershell: |
     Start-Process tools/CoreTools/SolutionPackager.exe `
       -ArgumentList `
