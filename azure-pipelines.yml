@@ -32,10 +32,10 @@ steps:
 - powershell: |
     Start-Process tools/CoreTools/SolutionPackager.exe `
     -ArgumentList `
-      "/action: Extract", `
+      "/action: Pack", `
       "/zipfile: $(Build.ArtifactStagingDirectory)", `
       "/folder: $env:SolutionPath", `
-      "/packagetype: Both" `
+      "/packagetype: Managed" `
     -Wait `
     -NoNewWindow
     -Verb `
