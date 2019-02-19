@@ -34,14 +34,12 @@ steps:
     Start-Process tools/CoreTools/SolutionPackager.exe `
       -ArgumentList `
         "/action: Extract", `
-        "/zipfile: $env:PathToSolution/$env:SolutionName.zip", `
-        "/folder: $env:BUILD_ARTIFACTSTAGINGDIRECTORY/packedSolution", `
-        "/packagetype: Both" `
+        "/zipfile: $env:SolutionPath", `
+        "/folder: $env:BUILD_ARTIFACTSTAGINGDIRECTORY/packedSolution" `
       -Wait `
       -NoNewWindow
   env:
-    SolutionName: $(Solution.Name)
-    PathToSolution: $(PathToSolution)
+    SolutionPath: $(Solution.Path)
   displayName: 'Pack Solution'
 
 - task: PublishBuildArtifacts@1
