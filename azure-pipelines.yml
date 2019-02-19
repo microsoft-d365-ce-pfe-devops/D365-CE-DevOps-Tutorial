@@ -1,0 +1,47 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+name: $(BuildDefinitionName)-$(Date:yyyyMMdd).$(Rev:.r)
+
+trigger:
+- master
+
+pool:
+  vmImage: 'vs2017-win2016'
+
+steps:
+- script: md tools
+  displayName: 'Create tools directory'
+
+- powershell: |
+    Invoke-WebRequest `
+      -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe `
+      -OutFile tools\\nuget.exe
+  displayName: 'Download nuget.exe'
+
+- powershell: |
+    tools\\nuget.exe install Microsoft.CrmSdk.CoreTools -O tools
+    md "tools\\CoreTools"
+    $coreToolsFolder = Get-ChildItem tools | Where-Object {$_.Name -match 'Microsoft.CrmSdk.CoreTools.'}
+    move "tools\\$coreToolsFolder\\content\\bin\\coretools\\*.*" "tools\\CoreTools"
+    Remove-Item "tools\\$coreToolsFolder" -Force -Recurse
+  displayName: 'Install CoreTools'
+
+- powershell: |
+    ./tools/CoreTools/SolutionPackager.exe /action: Extract /folder: packedSolution /zipFile: $env:SolutionPath /errorlevel: verbose
+  env:
+    SolutionPath: $(Solution.Path)
+  displayName: 'Solution Packager: pack solution'
+
+- task: CopyFiles@2
+  inputs:
+    contents: 'packedSolution'
+    targetFolder: $(Build.ArtifactStagingDirectory)\packedSolution
+  displayName: 'Copy packed solution to artifact staging directory'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: $(Build.ArtifactStagingDirectory)'
+    artifactName: drop
