@@ -12,7 +12,6 @@ pool:
   vmImage: 'vs2017-win2016'
 
 steps:
-
 - script: md tools
   displayName: 'Create tools directory'
 
@@ -30,19 +29,17 @@ steps:
     Remove-Item "tools\\$coreToolsFolder" -Force -Recurse
   displayName: 'Install CoreTools'
 
-- powershell : ls
-
 - powershell: |
-    Start-Process tools/CoreTools/SolutionPackager.exe `
-      -ArgumentList `
-        "/action: Extract", `
-        "/zipfile: $env:SolutionPath", `
-        "/folder: $env:BUILD_ARTIFACTSTAGINGDIRECTORY/packedSolution" `
-      -Wait `
-      -NoNewWindow
+    ./tools/CoreTools/SolutionPackager.exe /action: Extract /folder: packedSolution /zipFile: $env:SolutionPath /errorlevel: verbose
   env:
     SolutionPath: $(Solution.Path)
-  displayName: 'Pack Solution'
+  displayName: 'Solution Packager: pack solution'
+
+- task: CopyFiles@2
+  inputs:
+    contents: 'packedSolution'
+    targetFolder: $(Build.ArtifactStagingDirectory)\packedSolution
+  displayName: 'Copy packed solution to artifact staging directory'
 
 - task: PublishBuildArtifacts@1
   inputs:
