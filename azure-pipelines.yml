@@ -30,16 +30,19 @@ steps:
   displayName: 'Install CoreTools'
 
 - powershell: |
-    ./tools/CoreTools/SolutionPackager.exe /action: Extract /folder: packedSolution /zipFile: $env:SolutionPath /errorlevel: verbose
+    Start-Process tools/CoreTools/SolutionPackager.exe `
+    -ArgumentList `
+      "/action: Extract", `
+      "/zipfile: $(Build.ArtifactStagingDirectory)", `
+      "/folder: $env:SolutionPath", `
+      "/packagetype: Both" `
+    -Wait `
+    -NoNewWindow
+    -Verb `
+      "RunAs"
   env:
     SolutionPath: $(Solution.Path)
   displayName: 'Solution Packager: pack solution'
-
-- task: CopyFiles@2
-  inputs:
-    contents: 'packedSolution'
-    targetFolder: $(Build.ArtifactStagingDirectory)\packedSolution
-  displayName: 'Copy packed solution to artifact staging directory'
 
 - task: PublishBuildArtifacts@1
   inputs:
