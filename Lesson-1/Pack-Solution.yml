@@ -39,8 +39,8 @@ steps:
     -Wait `
     -NoNewWindow
   env:
-    SolutionPath: $(Solution.Path)
-    SolutionName: $(Solution.Name)
+    SolutionPath: $(solution.path)
+    SolutionName: $(solution.name)
   displayName: 'Solution Packager: pack solution'
 
 - task: CopyFiles@2
