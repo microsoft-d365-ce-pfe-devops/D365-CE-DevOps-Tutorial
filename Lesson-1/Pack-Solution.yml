@@ -42,7 +42,33 @@ steps:
     SolutionPath: $(solution.path)
     SolutionName: $(solution.name)
   displayName: 'Solution Packager: pack solution'
+    
+- powershell: Install-Module Microsoft.Xrm.Data.Powershell -Scope CurrentUser -Force
+  displayName: 'Install Microsoft.Xrm.Data.PowerShell'
 
+- powershell: |
+    $connection = Get-CrmConnection `
+      -ConnectionString `
+        ("AuthType = Office365;" + `
+        "Username = $env:ServiceAccountUpn;" + `
+        "Password = $env:ServiceAccountPassword;" + `
+        "Url = https://$env:EnvironmentName.crm.dynamics.com")
+
+    Import-CrmSolutionAsync 
+      -conn $connection
+      -SolutionFilePath packedSolution\$env:SolutionName.zip
+
+  env:
+    EnvironmentName: $(environment.name)
+    SolutionName: $(solution.name)
+    ServiceAccountUserName: $(serviceAccount.upn)
+    ServiceAccountPassword: $(serviceAccount.password)
+  displayName: 'Import solution'
+
+
+# Bonus code - if you plan to use a release pipeline instead YAML 
+# in a build pipeline or if YAML is made available for release 
+# pipelines you can use the code below to create an artifcat for release.
 - task: CopyFiles@2
   inputs:
     contents: 'packedSolution**\*'
@@ -53,3 +79,4 @@ steps:
   inputs:
     pathtoPublish: $(Build.ArtifactStagingDirectory)
     artifactName: drop
+  displayName: 'Publish build artifacts'
