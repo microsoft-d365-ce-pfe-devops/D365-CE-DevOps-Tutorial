@@ -33,23 +33,40 @@ steps:
     Start-Process tools/CoreTools/SolutionPackager.exe `
     -ArgumentList `
       "/action: Pack", `
-      "/zipfile: packedSolution\$env:SolutionName.zip", `
+      "/zipfile: $(Build.ArtifactStagingDirectory)\packedSolution\$env:SolutionName.zip", `
       "/folder: $env:SolutionPath", `
-      "/packagetype: Managed" `
+      "/packagetype: Both" `
     -Wait `
     -NoNewWindow
   env:
     SolutionPath: $(solution.path)
     SolutionName: $(solution.name)
   displayName: 'Solution Packager: pack solution'
-
-- task: CopyFiles@2
-  inputs:
-    contents: 'packedSolution**\*'
-    targetFolder: $(Build.ArtifactStagingDirectory)
-  displayName: 'Copy packed solution to artifact staging directory'
+    
 
 - task: PublishBuildArtifacts@1
   inputs:
     pathtoPublish: $(Build.ArtifactStagingDirectory)
     artifactName: drop
+  displayName: 'Publish build artifacts'
+
+- powershell: Install-Module Microsoft.Xrm.Data.Powershell -Scope CurrentUser -Force
+  displayName: 'Install Microsoft.Xrm.Data.PowerShell'
+
+- powershell: |
+    $connection = Get-CrmConnection `
+      -ConnectionString `
+        ("AuthType = Office365;" + `
+        "Username = $env:ServiceAccountUpn;" + `
+        "Password = $env:ServiceAccountPassword;" + `
+        "Url = https://$env:EnvironmentName.crm.dynamics.com")
+
+    Import-CrmSolution `
+      -conn $connection `
+      -SolutionFilePath $(Build.ArtifactStagingDirectory)\packedSolution\$($env:SolutionName)_managed.zip
+  env:
+    EnvironmentName: $(environment.name)
+    SolutionName: $(solution.name)
+    ServiceAccountUpn: $(serviceAccount.upn)
+    ServiceAccountPassword: $(serviceAccount.password)
+  displayName: 'Import solution'
