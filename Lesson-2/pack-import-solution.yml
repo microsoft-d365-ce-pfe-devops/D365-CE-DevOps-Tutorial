@@ -8,7 +8,7 @@ resources:
     - repository: templates
       type: github
       name: microsoft-d365-ce-pfe-devops/D365-CE-Pipelines
-      endpoint: tyler-hogsett-microsoft (1)
+      endpoint: microsoft-d365-ce-devops
 
 jobs:
 - template: jobs/pack-import-solution.yml@templates
