@@ -11,4 +11,4 @@ resources:
       endpoint: microsoft-d365-ce-devops
 
 jobs:
-- template: jobs/pack-import-solution.yml@templates
+- template: jobs/pack-import-solution.yml@template
