@@ -1,0 +1,14 @@
+name: $(BuildDefinitionName)-$(Date:yyyyMMdd).$(Rev:.r)
+
+trigger:
+- none
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: microsoft-d365-ce-pfe-devops/D365-CE-Pipelines
+      endpoint: microsoft-d365-ce-devops
+
+jobs:
+- template: jobs/export-unpack-commit-solution.yml@templates
