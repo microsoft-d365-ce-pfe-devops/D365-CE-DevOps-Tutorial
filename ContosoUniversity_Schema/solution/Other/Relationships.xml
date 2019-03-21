@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<EntityRelationships>
+  <EntityRelationship Name="cou_contact_cou_department_department_head_id" />
+  <EntityRelationship Name="lk_cou_building_createdby" />
+  <EntityRelationship Name="lk_cou_building_modifiedby" />
+  <EntityRelationship Name="lk_cou_department_createdby" />
+  <EntityRelationship Name="lk_cou_department_modifiedby" />
+  <EntityRelationship Name="organization_cou_building" />
+  <EntityRelationship Name="organization_cou_department" />
+</EntityRelationships>
