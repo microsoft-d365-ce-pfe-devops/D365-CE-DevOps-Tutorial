@@ -10,6 +10,7 @@ stages:
    jobs:
 
     - job:
+      displayName: "Pack Solution from repository"
 
       pool:
         vmImage: 'vs2017-win2016'
@@ -60,6 +61,7 @@ stages:
    jobs:
 
     - job:
+      displayName: "Import solution artifact"
 
       pool:
         vmImage: 'vs2017-win2016'
