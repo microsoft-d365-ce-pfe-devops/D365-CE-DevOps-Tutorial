@@ -1,0 +1,72 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+name: $(BuildDefinitionName)-$(Date:yyyyMMdd).$(Rev:.r)
+
+trigger:
+- master
+
+pool:
+  vmImage: 'vs2017-win2016'
+
+steps:
+- script: md tools
+  displayName: 'Create tools directory'
+
+- powershell: |
+    Invoke-WebRequest `
+      -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe `
+      -OutFile tools\\nuget.exe
+  displayName: 'Download nuget.exe'
+
+- powershell: |
+    tools\\nuget.exe install Microsoft.CrmSdk.CoreTools -O tools
+    md "tools\\CoreTools"
+    $coreToolsFolder = Get-ChildItem tools | Where-Object {$_.Name -match 'Microsoft.CrmSdk.CoreTools.'}
+    move "tools\\$coreToolsFolder\\content\\bin\\coretools\\*.*" "tools\\CoreTools"
+    Remove-Item "tools\\$coreToolsFolder" -Force -Recurse
+  displayName: 'Install CoreTools'
+
+- powershell: |
+    Start-Process tools/CoreTools/SolutionPackager.exe `
+    -ArgumentList `
+      "/action: Pack", `
+      "/zipfile: $(Build.ArtifactStagingDirectory)\packedSolution\$env:SolutionName.zip", `
+      "/folder: $env:SolutionPath", `
+      "/packagetype: Both" `
+    -Wait `
+    -NoNewWindow
+  env:
+    SolutionPath: $(solution.path)
+    SolutionName: $(solution.name)
+  displayName: 'Solution Packager: pack solution'
+    
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: $(Build.ArtifactStagingDirectory)
+    artifactName: drop
+  displayName: 'Publish build artifacts'
+
+- powershell: Install-Module Microsoft.Xrm.Data.Powershell -Scope CurrentUser -Force
+  displayName: 'Install Microsoft.Xrm.Data.PowerShell'
+
+- powershell: |
+    $connection = Get-CrmConnection `
+      -ConnectionString `
+        ("AuthType = Office365;" + `
+        "Username = $env:ServiceAccountUpn;" + `
+        "Password = $env:ServiceAccountPassword;" + `
+        "Url = https://$env:EnvironmentName.crm.dynamics.com")
+
+    Import-CrmSolution `
+      -conn $connection `
+      -SolutionFilePath $(Build.ArtifactStagingDirectory)\packedSolution\$($env:SolutionName)_managed.zip
+  env:
+    EnvironmentName: $(environment.name)
+    SolutionName: $(solution.name)
+    ServiceAccountUpn: $(serviceAccount.upn)
+    ServiceAccountPassword: $(serviceAccount.password)
+  displayName: 'Import solution'
