@@ -59,35 +59,41 @@ stages:
 
    jobs:
 
-    - job:
+    - deployment: Deploy
       displayName: "Import solution artifact"
 
       pool:
         vmImage: 'vs2017-win2016'
 
-      steps:
+      environment: test
+      
+      strategy:
+        runOnce:
+          deploy:
+      
+            steps:
 
-      - task: DownloadBuildArtifacts@0
-        inputs:
-          artifactName: 'drop'
+            - task: DownloadBuildArtifacts@0
+              inputs:
+                artifactName: 'drop'
 
-      - powershell: Install-Module Microsoft.Xrm.Data.Powershell -Scope CurrentUser -Force
-        displayName: 'Install Microsoft.Xrm.Data.PowerShell'
+            - powershell: Install-Module Microsoft.Xrm.Data.Powershell -Scope CurrentUser -Force
+              displayName: 'Install Microsoft.Xrm.Data.PowerShell'
 
-      - powershell: |
-          $connection = Get-CrmConnection `
-            -ConnectionString `
-              ("AuthType = Office365;" + `
-              "Username = $env:ServiceAccountUpn;" + `
-              "Password = $env:ServiceAccountPassword;" + `
-              "Url = https://$env:EnvironmentName.crm.dynamics.com")
+            - powershell: |
+                $connection = Get-CrmConnection `
+                  -ConnectionString `
+                    ("AuthType = Office365;" + `
+                    "Username = $env:ServiceAccountUpn;" + `
+                    "Password = $env:ServiceAccountPassword;" + `
+                    "Url = https://$env:EnvironmentName.crm.dynamics.com")
 
-          Import-CrmSolutionAsync -BlockUntilImportComplete `
-            -conn $connection `
-            -SolutionFilePath $(System.ArtifactsDirectory)\drop\packedSolution\$($env:SolutionName)_managed.zip
-        env:
-          EnvironmentName: $(environment.name)
-          SolutionName: $(solution.name)
-          ServiceAccountUpn: $(serviceAccount.upn)
-          ServiceAccountPassword: $(serviceAccount.password)
-        displayName: 'Import solution'
+                Import-CrmSolutionAsync -BlockUntilImportComplete `
+                  -conn $connection `
+                  -SolutionFilePath $(System.ArtifactsDirectory)\drop\packedSolution\$($env:SolutionName)_managed.zip
+              env:
+                EnvironmentName: $(environment.name)
+                SolutionName: $(solution.name)
+                ServiceAccountUpn: $(serviceAccount.upn)
+                ServiceAccountPassword: $(serviceAccount.password)
+              displayName: 'Import solution'
