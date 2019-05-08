@@ -82,7 +82,7 @@ stages:
               "Password = $env:ServiceAccountPassword;" + `
               "Url = https://$env:EnvironmentName.crm.dynamics.com")
 
-          Import-CrmSolutionAsync `
+          Import-CrmSolutionAsync -BlockUntilImportComplete `
             -conn $connection `
             -SolutionFilePath $(System.ArtifactsDirectory)\drop\packedSolution\$($env:SolutionName)_managed.zip
         env:
