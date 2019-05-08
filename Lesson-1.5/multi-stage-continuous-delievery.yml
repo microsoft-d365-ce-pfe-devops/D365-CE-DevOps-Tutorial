@@ -33,6 +33,7 @@ stages:
           Remove-Item "tools\\$coreToolsFolder" -Force -Recurse
         displayName: 'Install CoreTools'
 
+      # Don't forget to add the env variables to your pipeline settings
       - powershell: |
           Start-Process tools/CoreTools/SolutionPackager.exe `
           -ArgumentList `
@@ -66,7 +67,7 @@ stages:
         vmImage: 'vs2017-win2016'
 
       environment: test
-      
+
       strategy:
         runOnce:
           deploy:
@@ -83,6 +84,7 @@ stages:
             - powershell: Install-Module Microsoft.Xrm.Data.Powershell -Scope CurrentUser -Force
               displayName: 'Install Microsoft.Xrm.Data.PowerShell'
 
+            # Don't forget to add the env variables to your pipeline settings
             - powershell: |
                 $connection = Get-CrmConnection `
                   -ConnectionString `
