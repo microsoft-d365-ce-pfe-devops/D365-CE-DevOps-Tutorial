@@ -75,7 +75,10 @@ stages:
 
             - task: DownloadBuildArtifacts@0
               inputs:
+                buildType: 'current'
+                downloadType: 'single'
                 artifactName: 'drop'
+                downloadPath: '$(System.ArtifactsDirectory)'
 
             - powershell: Install-Module Microsoft.Xrm.Data.Powershell -Scope CurrentUser -Force
               displayName: 'Install Microsoft.Xrm.Data.PowerShell'
