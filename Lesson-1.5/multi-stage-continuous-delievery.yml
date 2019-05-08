@@ -5,7 +5,8 @@ trigger:
 
 stages:
 
- - stage: Build Stage
+ - stage: Build
+   displayName: "Build Stage"
 
    jobs:
 
@@ -54,7 +55,7 @@ stages:
         displayName: 'Publish build artifacts'
 
  - stage: Release
-   displayName: "Release"
+   displayName: "Release Stage"
    dependsOn: Build
    condition: succeeded('Build') 
 
