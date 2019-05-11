@@ -1,0 +1,104 @@
+name: $(BuildDefinitionName)-$(Date:yyyyMMdd).$(Rev:.r)
+
+trigger:
+- master
+
+stages:
+
+ - stage: Build
+
+   jobs:
+
+    - job:
+      displayName: "Pack Solution from repository"
+
+      pool:
+        vmImage: 'vs2017-win2016'
+
+      steps:
+      - script: md tools
+        displayName: 'Create tools directory'
+
+      - powershell: |
+          Invoke-WebRequest `
+            -Uri https://dist.nuget.org/win-x86-commandline/latest/nuget.exe `
+            -OutFile tools\\nuget.exe
+        displayName: 'Download nuget.exe'
+
+      - powershell: |
+          tools\\nuget.exe install Microsoft.CrmSdk.CoreTools -O tools
+          md "tools\\CoreTools"
+          $coreToolsFolder = Get-ChildItem tools | Where-Object {$_.Name -match 'Microsoft.CrmSdk.CoreTools.'}
+          move "tools\\$coreToolsFolder\\content\\bin\\coretools\\*.*" "tools\\CoreTools"
+          Remove-Item "tools\\$coreToolsFolder" -Force -Recurse
+        displayName: 'Install CoreTools'
+
+      # Don't forget to add the env variables to your pipeline settings
+      - powershell: |
+          Start-Process tools/CoreTools/SolutionPackager.exe `
+          -ArgumentList `
+            "/action: Pack", `
+            "/zipfile: $(Build.ArtifactStagingDirectory)\packedSolution\$env:SolutionName.zip", `
+            "/folder: $env:SolutionPath", `
+            "/packagetype: Both" `
+          -Wait `
+          -NoNewWindow
+        env:
+          SolutionPath: $(solution.path)
+          SolutionName: $(solution.name)
+        displayName: 'Solution Packager: pack solution'          
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          pathtoPublish: $(Build.ArtifactStagingDirectory)
+          artifactName: drop
+        displayName: 'Publish build artifacts'
+
+ - stage: Release
+   dependsOn: Build
+   condition: succeeded('Build') 
+
+   jobs:
+
+    - deployment: Deploy
+      displayName: "Import solution artifact"
+
+      pool:
+        vmImage: 'vs2017-win2016'
+
+      environment: test
+
+      strategy:
+        runOnce:
+          deploy:
+      
+            steps:
+
+            - task: DownloadBuildArtifacts@0
+              inputs:
+                buildType: 'current'
+                downloadType: 'single'
+                artifactName: 'drop'
+                downloadPath: '$(System.ArtifactsDirectory)'
+
+            - powershell: Install-Module Microsoft.Xrm.Data.Powershell -Scope CurrentUser -Force
+              displayName: 'Install Microsoft.Xrm.Data.PowerShell'
+
+            # Don't forget to add the env variables to your pipeline settings
+            - powershell: |
+                $connection = Get-CrmConnection `
+                  -ConnectionString `
+                    ("AuthType = Office365;" + `
+                    "Username = $env:ServiceAccountUpn;" + `
+                    "Password = $env:ServiceAccountPassword;" + `
+                    "Url = https://$env:EnvironmentName.crm.dynamics.com")
+
+                Import-CrmSolutionAsync -BlockUntilImportComplete `
+                  -conn $connection `
+                  -SolutionFilePath $(System.ArtifactsDirectory)\drop\packedSolution\$($env:SolutionName)_managed.zip
+              env:
+                EnvironmentName: $(environment.name)
+                SolutionName: $(solution.name)
+                ServiceAccountUpn: $(serviceAccount.upn)
+                ServiceAccountPassword: $(serviceAccount.password)
+              displayName: 'Import solution'
