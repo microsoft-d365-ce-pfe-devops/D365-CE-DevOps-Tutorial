@@ -17,4 +17,5 @@ Blog post - [Introduction to DevOps for Dynamics 365 Customer Engagement using Y
 [![Build Status](https://dev.azure.com/dyn-365-ce-devops-tutorial/DevOps%20for%20Dynamics%20365%20CE/_apis/build/status/microsoft-d365-ce-pfe-devops.D365-CE-DevOps-Tutorial?branchName=lesson-1.5)](https://dev.azure.com/dyn-365-ce-devops-tutorial/DevOps%20for%20Dynamics%20365%20CE/_build/latest?definitionId=1?branchName=lesson-1.5)
 
 ## Lesson 2
-Blog post - Refactoring Pipelines and Using YAML to Unpack Dynamics 365 for Customer Engagement Solutions
+Blog post - Refactoring Pipelines and Implementing PowerApps Checker in Build
+
