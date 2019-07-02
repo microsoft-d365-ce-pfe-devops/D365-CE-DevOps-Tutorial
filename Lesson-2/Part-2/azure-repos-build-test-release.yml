@@ -1,0 +1,15 @@
+name: $(BuildDefinitionName)-$(Date:yyyyMMdd).$(Rev:.r)
+
+trigger:
+- master
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: pipeline-templates
+
+stages:
+  - template: stages/build.yml@templates
+  - template: stages/test.yml@templates
+  - template: stages/release.yml@templates

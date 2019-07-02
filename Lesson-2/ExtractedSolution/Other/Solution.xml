@@ -1,14 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ImportExportXml version="9.1.0.2851" SolutionPackageVersion="9.1" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<ImportExportXml version="9.1.0.5826" SolutionPackageVersion="9.1" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <SolutionManifest>
-    <UniqueName>ContosoUniversity_Schema</UniqueName>
+    <UniqueName>ContosoUniversity</UniqueName>
     <LocalizedNames>
-      <LocalizedName description="Contoso University - Schema" languagecode="1033" />
+      <LocalizedName description="Contoso University" languagecode="1033" />
     </LocalizedNames>
-    <Descriptions>
-      <Description description="Upgrade of Contoso University - Schema" languagecode="1033" />
-    </Descriptions>
-    <Version>1.2.0.0</Version>
+    <Descriptions />
+    <Version>1.0.0.0</Version>
     <Managed>2</Managed>
     <Publisher>
       <UniqueName>contosouniversity</UniqueName>
@@ -18,8 +16,8 @@
       <Descriptions />
       <EMailAddress xsi:nil="true"></EMailAddress>
       <SupportingWebsiteUrl xsi:nil="true"></SupportingWebsiteUrl>
-      <CustomizationPrefix>cou</CustomizationPrefix>
-      <CustomizationOptionValuePrefix>18149</CustomizationOptionValuePrefix>
+      <CustomizationPrefix>cu</CustomizationPrefix>
+      <CustomizationOptionValuePrefix>10000</CustomizationOptionValuePrefix>
       <Addresses>
         <Address>
           <AddressNumber>1</AddressNumber>
@@ -80,8 +78,7 @@
       </Addresses>
     </Publisher>
     <RootComponents>
-      <RootComponent type="1" schemaName="cou_building" behavior="0" />
-      <RootComponent type="1" schemaName="cou_department" behavior="0" />
+      <RootComponent type="61" schemaName="cu_bad_javascript.js" behavior="0" />
     </RootComponents>
     <MissingDependencies />
   </SolutionManifest>
